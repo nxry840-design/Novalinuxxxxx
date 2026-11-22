@@ -1,0 +1,7 @@
+#!/bin/sh
+set -e
+install -d /usr/share/backgrounds/novalinux
+chmod 755 /usr/local/bin/nova-welcome
+if [ -d /etc/skel/Desktop ]; then
+  chmod +x /etc/skel/Desktop/*.desktop 2>/dev/null || true
+fi

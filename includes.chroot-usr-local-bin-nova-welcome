@@ -1,0 +1,76 @@
+#!/usr/bin/env python3
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, Gdk
+
+class Welcome(Gtk.Window):
+    def __init__(self):
+        super().__init__(title="Welcome to NovaLinux")
+        self.set_default_size(560, 430)
+        self.set_position(Gtk.WindowPosition.CENTER)
+        self.set_border_width(24)
+        self.connect("destroy", Gtk.main_quit)
+
+        css = b'''
+        window { background: #111a30; color: #eef5ff; }
+        label { color: #eef5ff; }
+        .hero { font-size: 30px; font-weight: 700; }
+        .sub { color: #a9bddc; font-size: 13px; }
+        button { background: #263d68; color: white; border: 1px solid #47658f; border-radius: 14px; padding: 10px; }
+        '''
+        provider = Gtk.CssProvider()
+        provider.load_from_data(css)
+        Gtk.StyleContext.add_provider_for_screen(
+            Gdk.Screen.get_default(), provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
+
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=16)
+        self.add(box)
+        title = Gtk.Label(label="NovaLinux")
+        title.get_style_context().add_class("hero")
+        box.pack_start(title, False, False, 4)
+        sub = Gtk.Label(label="A modern Linux desktop with a calm, connected design.")
+        sub.get_style_context().add_class("sub")
+        box.pack_start(sub, False, False, 0)
+
+        card = Gtk.Frame()
+        card.set_shadow_type(Gtk.ShadowType.NONE)
+        inner = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        inner.set_border_width(18)
+        card.add(inner)
+        for heading, detail in [
+            ("Explore your desktop", "Open apps from the floating dock or Applications menu."),
+            ("Connect", "Use Network, Bluetooth and Sound settings to configure your devices."),
+            ("Make it yours", "Open Appearance and Window Manager settings to personalize the desktop.")
+        ]:
+            h = Gtk.Label()
+            h.set_markup("<b>" + heading + "</b>")
+            h.set_xalign(0)
+            inner.pack_start(h, False, False, 0)
+            d = Gtk.Label(label=detail)
+            d.set_xalign(0)
+            d.set_line_wrap(True)
+            inner.pack_start(d, False, False, 4)
+        box.pack_start(card, True, True, 8)
+
+        buttons = Gtk.Box(spacing=10)
+        for label, command in [
+            ("Settings", "xfce4-settings-manager"),
+            ("Files", "thunar"),
+            ("Close", None)
+        ]:
+            button = Gtk.Button(label=label)
+            if command:
+                button.connect("clicked", self.launch, command)
+            else:
+                button.connect("clicked", lambda *_: self.destroy())
+            buttons.pack_start(button, True, True, 0)
+        box.pack_end(buttons, False, False, 0)
+
+    def launch(self, _button, command):
+        import subprocess
+        subprocess.Popen([command])
+
+Welcome()
+Gtk.main()
